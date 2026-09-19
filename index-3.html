@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Crack Exam — Admin Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+ --navy:#071a31;--navy2:#0d2a4c;--blue:#1268e9;--blue2:#2585ff;--cyan:#18b9d7;
+ --text:#10213c;--muted:#718097;--line:#dce7f1;--bg:#f4f8fc;--white:#fff;
+ --green:#19ad69;--purple:#7654db;--orange:#ff8a18;--red:#ed4657;--shadow:0 8px 25px rgba(20,57,95,.08)
+}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,Arial,sans-serif}
+button,input{font:inherit}.app{display:flex;min-height:100vh}
+.sidebar{width:225px;flex:none;background:linear-gradient(180deg,#071b33,#06172b);color:#fff;padding:20px 13px;position:fixed;inset:0 auto 0 0;z-index:20}
+.logo{display:flex;align-items:center;gap:10px;padding:0 8px 23px}.cap{width:43px;height:34px;position:relative}.cap:before{content:"";position:absolute;width:41px;height:24px;background:#1171f4;transform:skew(-28deg) rotate(-10deg);border-radius:4px 5px 12px 4px;top:3px}.cap:after{content:"";position:absolute;width:7px;height:19px;background:#ffd426;right:4px;bottom:0;border-radius:2px}
+.logo b{font-size:21px;letter-spacing:.3px}.logo b span{color:#ffd21c}.logo small{display:block;font-size:11px;color:#dbe7f5;margin-top:1px}
+.nav{display:flex;flex-direction:column;gap:4px}.nav a{height:43px;display:flex;align-items:center;gap:14px;padding:0 14px;color:#d9e4f2;text-decoration:none;border-radius:10px;font-size:14px}.nav a:hover,.nav a.active{background:linear-gradient(90deg,#0870f7,#1261dc);color:#fff;box-shadow:0 7px 16px rgba(4,93,224,.22)}.ico{width:20px;text-align:center;font-size:19px}
+.section-title{font-size:11px;color:#91a7c3;padding:22px 14px 7px;border-top:1px solid #1d3855;margin-top:10px}
+.version{position:absolute;bottom:20px;left:25px;color:#9eb2c9;font-size:11px}.version b{color:#fff;font-size:12px;display:block;margin-bottom:5px}
+.main{margin-left:225px;width:calc(100% - 225px);min-width:0}.topbar{height:70px;background:#0b2039;color:#fff;display:flex;align-items:center;padding:0 22px;gap:20px}.search{flex:1;max-width:550px;position:relative}.search input{width:100%;height:43px;border-radius:15px;border:1px solid #dbe5ef;background:#f7fafc;padding:0 18px 0 48px;outline:none;color:#233b59}.search span{position:absolute;left:18px;top:10px;font-size:20px;color:#50657c}.topright{margin-left:auto;display:flex;align-items:center;gap:18px}.bell{position:relative;font-size:21px}.badge{position:absolute;background:#ef334b;color:#fff;font-size:9px;line-height:18px;width:18px;height:18px;text-align:center;border-radius:50%;top:-8px;right:-9px}.avatar{width:43px;height:43px;border-radius:50%;background:linear-gradient(135deg,#ffd8b5,#6b8fba);display:grid;place-items:center;font-weight:800;border:2px solid #fff}.user strong{display:block;font-size:12px}.user small{color:#b6c7da;font-size:11px}.chev{font-size:13px}.moon{border-left:1px solid #29415d;padding-left:18px;font-size:21px}
+.content{padding:16px 18px 10px}.layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:16px}.hero{height:237px;border-radius:12px;overflow:hidden;position:relative;background:radial-gradient(circle at 75% 50%,#7e3fd1 0,#172d79 38%,#071d49 76%);color:#fff;padding:28px 34px}.hero:after{content:"";position:absolute;right:-30px;top:-30px;width:48%;height:140%;background:linear-gradient(125deg,transparent 35%,rgba(80,157,255,.18),transparent 68%);transform:rotate(7deg)}.crumb{display:inline-flex;gap:12px;background:#164484;padding:9px 16px;border-radius:20px;font-size:12px;color:#e6f1ff}.hero h1{font-size:31px;margin:14px 0 2px;position:relative;z-index:2}.hero h1 span{color:#ffd322}.hero p{margin:8px 0 17px;font-weight:600;font-size:15px;position:relative;z-index:2}.start{border:0;background:#ffd228;color:#182438;font-weight:800;border-radius:22px;padding:11px 22px;position:relative;z-index:3;box-shadow:0 6px 16px rgba(0,0,0,.2)}
+.quick,.goal,.activity,.ad{background:#fff;border:1px solid var(--line);border-radius:13px;box-shadow:var(--shadow)}.quick{padding:14px}.panel-head{font-size:14px;font-weight:800;margin:0 0 12px;display:flex;align-items:center;gap:8px}.panel-head i{font-style:normal;color:#146ce8;font-size:21px}.quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.quick button{height:77px;border:0;border-radius:11px;color:#fff;font-weight:700;box-shadow:inset 0 1px rgba(255,255,255,.2);cursor:pointer}.quick button:nth-child(1){background:#2174ed}.quick button:nth-child(2){background:#23ad67}.quick button:nth-child(3){background:#7753da}.quick button:nth-child(4){background:#ff8519}.quick button:hover{filter:brightness(1.05);transform:translateY(-1px)}.quick button span{display:block;font-size:23px;margin-bottom:6px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:14px}.stat{background:#fff;border:1px solid var(--line);border-radius:13px;padding:14px 15px;display:flex;align-items:center;gap:13px;min-height:98px;box-shadow:var(--shadow)}.stat-icon{width:45px;height:45px;border-radius:12px;display:grid;place-items:center;font-size:22px;color:#fff}.s1{background:#1675e8}.s2{background:#13afd0}.s3{background:#7654d7}.s4{background:#22ad6d}.stat small{font-size:11px;color:#53667e}.stat strong{font-size:22px;display:block;margin:5px 0 2px}.stat em{font-style:normal;font-size:10px;color:#687990}.stat a{float:right;color:#1696bc}
+.panel{background:#fff;border:1px solid var(--line);border-radius:13px;box-shadow:var(--shadow);margin-top:14px;padding:13px}.panel-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.panel-title h2{font-size:15px;margin:0}.panel-title p{font-size:11px;color:#7a899d;margin:4px 0 0}.view{border:1px solid #d9e5ef;background:#f8fbfd;color:#135db2;border-radius:9px;padding:7px 11px;font-size:11px;font-weight:700}
+.exam-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.exam{border:1px solid #dfe8f0;border-radius:10px;padding:12px;background:linear-gradient(180deg,#fff,#fbfdff)}.exam-top{display:flex;align-items:center;gap:10px}.seal{width:43px;height:43px;border-radius:50%;background:#d92435;color:#fff;display:grid;place-items:center;font-size:20px;border:3px solid #fff;box-shadow:0 0 0 1px #f1c3c8}.exam:nth-child(2) .seal{background:#a71927}.exam:nth-child(3) .seal{background:#9e1c2d}.exam:nth-child(4) .seal{background:#1e8c8b}.exam h3{font-size:13px;margin:0 0 4px}.exam small{font-size:9px;color:#78879b}.pill{display:inline-block;background:#edf6ff;color:#135db2;border-radius:12px;padding:6px 10px;font-size:10px;font-weight:700;margin:12px 0 9px}.subjects{font-size:9px;color:#58708a;line-height:1.8;height:34px}.bluebtn{width:100%;border:0;background:#1470e8;color:#fff;padding:9px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer}
+.packages{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.pkg{border:1px solid #dfe8f0;border-radius:10px;padding:11px}.pkg-img{height:63px;border-radius:8px;background:linear-gradient(135deg,#477da7,#163d67);display:grid;place-items:center;color:#fff;font-size:30px}.pkg:nth-child(2) .pkg-img{background:linear-gradient(135deg,#8a6a40,#d0ad68)}.pkg:nth-child(3) .pkg-img{background:linear-gradient(135deg,#8d3c30,#d67b5c)}.pkg:nth-child(4) .pkg-img{background:linear-gradient(135deg,#6488a3,#c4d7df)}.pkg h3{font-size:11px;margin:9px 0 5px}.price{font-size:14px;font-weight:800}.old{text-decoration:line-through;color:#8d98a7;font-size:10px;margin-left:5px}.off{color:#159b5f;background:#e5f7ee;border-radius:5px;font-size:9px;padding:4px;margin-left:4px}.pkg-meta{display:grid;grid-template-columns:1fr 1fr;font-size:9px;color:#65758b;gap:5px;margin:10px 0}.pkg .bluebtn{padding:8px}
+.right{display:flex;flex-direction:column;gap:14px}.goal{padding:14px}.goal-head{display:flex;justify-content:space-between;align-items:center}.goal h3{font-size:14px;margin:0}.edit{font-size:10px;color:#2872c5;border:1px solid #d7e3ed;background:#f7fafc;padding:6px 8px;border-radius:7px}.goal-body{display:flex;align-items:center;gap:15px;margin-top:8px}.ring{width:90px;height:90px;border-radius:50%;background:conic-gradient(#0c70dc 0 144deg,#e6edf5 144deg 360deg);display:grid;place-items:center;position:relative}.ring:after{content:"";position:absolute;width:67px;height:67px;border-radius:50%;background:#fff}.ring b{position:relative;z-index:1;font-size:15px}.ring small{position:absolute;z-index:2;margin-top:31px;font-size:8px;color:#75849a}.quote{font-size:11px;line-height:1.8;color:#263d5d;font-weight:600}.activity{padding:14px}.activity-list{display:flex;flex-direction:column}.act{display:flex;gap:9px;padding:10px 0;border-bottom:1px solid #e8eef4}.act:last-child{border:0}.act-icon{width:30px;height:30px;border-radius:8px;background:#e9f5ff;color:#1671d9;display:grid;place-items:center}.act strong{font-size:10px;display:block}.act small{font-size:9px;color:#8090a2}.act time{margin-left:auto;font-size:8px;color:#8592a2}.ad{overflow:hidden;background:linear-gradient(135deg,#0a55c7,#174ed0);color:#fff;padding:17px;height:145px;position:relative}.ad h2{font-size:19px;line-height:1.3;margin:0 0 13px;max-width:150px}.ad button{background:#ffd32c;border:0;border-radius:18px;padding:9px 16px;font-weight:800;font-size:10px}.ad-art{position:absolute;right:4px;bottom:-8px;font-size:65px}.footer{border-top:1px solid #dce5ee;margin-top:10px;padding:13px 2px;font-size:10px;color:#6d7b8f;display:flex;justify-content:space-between}.footer b{color:#132e50}.footer a{margin-left:18px}
+@media(max-width:1100px){.sidebar{width:200px}.main{margin-left:200px;width:calc(100% - 200px)}.layout{grid-template-columns:1fr}.right{display:grid;grid-template-columns:1fr 1fr}.ad{grid-column:span 2}.exam-grid,.packages{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:760px){.sidebar{transform:translateX(-100%);transition:.25s}.sidebar.open{transform:translateX(0)}.main{margin-left:0;width:100%}.topbar{padding:0 12px}.menu-btn{display:block}.user{display:none}.content{padding:10px}.stats{grid-template-columns:1fr 1fr}.hero{height:250px;padding:22px}.hero h1{font-size:26px}.right{grid-template-columns:1fr}.ad{grid-column:auto}.exam-grid,.packages{grid-template-columns:1fr}.footer{flex-direction:column;gap:8px}.search{max-width:none}.topright{gap:8px}.moon{display:none}}
+.menu-btn{display:none;border:0;background:none;color:#fff;font-size:24px}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar" id="sidebar">
+  <div class="logo"><div class="cap"></div><div><b>CRACK <span>EXAM</span></b><small>Your Success, Our Mission</small></div></div>
+  <nav class="nav">
+    <a class="active" href="#"><span class="ico">⌂</span>Home</a><a href="#exams"><span class="ico">♜</span>Exams</a><a href="#tests"><span class="ico">▤</span>Test Series</a><a href="#questions"><span class="ico">?</span>Question Bank</a><a href="#classes"><span class="ico">▶</span>Classes</a><a href="#batches"><span class="ico">♟</span>Online Batches</a><a href="#study"><span class="ico">▣</span>Study Material</a><a href="#results"><span class="ico">▥</span>My Results</a><a href="#profile"><span class="ico">●</span>Profile</a>
+    <div class="section-title">ADMIN PANEL</div>
+    <a href="#"><span class="ico">◉</span>Admin Dashboard</a><a href="#"><span class="ico">⊕</span>Create Exam</a><a href="#"><span class="ico">▤</span>Create Test</a><a href="#"><span class="ico">☷</span>Manage Questions</a><a href="#"><span class="ico">♢</span>Manage Classes</a><a href="#"><span class="ico">♟</span>Manage Batches</a><a href="#"><span class="ico">♟</span>Users & Reports</a><a href="#"><span class="ico">⚙</span>Settings</a>
+  </nav>
+  <div class="version"><b>⚡ CRACK EXAM</b>v1.0.0</div>
+</aside>
+
+<main class="main">
+<header class="topbar">
+  <button class="menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+  <div class="search"><span>⌕</span><input placeholder="Search exams, tests, classes, or anything..."></div>
+  <div class="topright"><div class="bell">♟<span class="badge">5</span></div><div class="avatar">AK</div><div class="user"><strong>Anil Kumar</strong><small>Student</small></div><span class="chev">⌄</span><div class="moon">◐</div></div>
+</header>
+
+<div class="content">
+<div class="layout">
+<div>
+<section class="hero">
+  <div class="crumb">Learn <b>•</b> Practice <b>•</b> Crack</div>
+  <h1>Your Dream Exam<br><span>Our Mission</span></h1>
+  <p>सही तैयारी&nbsp; = &nbsp;बेहतर भविष्य</p>
+  <button class="start" onclick="toast('Welcome to Crack Exam!')">Start Learning &nbsp;→</button>
+</section>
+
+<section class="stats">
+  <div class="stat"><div class="stat-icon s1">♜</div><div><small>Total Exams</small><strong>6</strong><em>Active Exams</em></div><a>→</a></div>
+  <div class="stat"><div class="stat-icon s2">▤</div><div><small>Total Tests</small><strong>12</strong><em>Tests Created</em></div><a>→</a></div>
+  <div class="stat"><div class="stat-icon s3">?</div><div><small>Total Questions</small><strong>248</strong><em>In Question Bank</em></div><a>→</a></div>
+  <div class="stat"><div class="stat-icon s4">♟</div><div><small>Total Students</small><strong>48</strong><em>Registered Users</em></div><a>→</a></div>
+</section>
+
+<section class="panel" id="exams">
+ <div class="panel-title"><div><h2>▣ &nbsp;Available Exams</h2><p>Choose your exam and start your preparation</p></div><button class="view">View All &nbsp;→</button></div>
+ <div class="exam-grid">
+  <article class="exam"><div class="exam-top"><div class="seal">◉</div><div><h3>RRB Group D</h3><small>Railway Recruitment Board</small></div></div><span class="pill">Total Tests: 5</span><div class="subjects">Maths &nbsp;•&nbsp; Reasoning &nbsp;•&nbsp; GS &nbsp;•&nbsp; Science</div><button class="bluebtn" onclick="toast('Opening RRB Group D')">View Details &nbsp;→</button></article>
+  <article class="exam"><div class="exam-top"><div class="seal">♜</div><div><h3>SSC GD</h3><small>Staff Selection Commission</small></div></div><span class="pill">Total Tests: 4</span><div class="subjects">Maths &nbsp;•&nbsp; Reasoning &nbsp;•&nbsp; GS &nbsp;•&nbsp; Hindi</div><button class="bluebtn" onclick="toast('Opening SSC GD')">View Details &nbsp;→</button></article>
+  <article class="exam"><div class="exam-top"><div class="seal">★</div><div><h3>UP Police</h3><small>Uttar Pradesh Police</small></div></div><span class="pill">Total Tests: 3</span><div class="subjects">Reasoning &nbsp;•&nbsp; GS &nbsp;•&nbsp; Hindi &nbsp;•&nbsp; U.P GK</div><button class="bluebtn" onclick="toast('Opening UP Police')">View Details &nbsp;→</button></article>
+  <article class="exam"><div class="exam-top"><div class="seal">✿</div><div><h3>CTET</h3><small>Central Teacher Eligibility Test</small></div></div><span class="pill">Total Tests: 3</span><div class="subjects">Child Dev. &nbsp;•&nbsp; EVS &nbsp;•&nbsp; Language 1 & 2</div><button class="bluebtn" onclick="toast('Opening CTET')">View Details &nbsp;→</button></article>
+ </div>
+</section>
+
+<section class="panel" id="tests">
+ <div class="panel-title"><div><h2>✦ &nbsp;Popular Packages</h2><p>Get access to best courses and batches</p></div><button class="view">View All &nbsp;→</button></div>
+ <div class="packages">
+  <article class="pkg"><div class="pkg-img">🚆</div><h3>RRB Group D Complete Batch</h3><div><b class="price">₹999</b><span class="old">₹1,999</span><span class="off">50% OFF</span></div><div class="pkg-meta"><span>▹ Video Classes</span><span>▹ Live Classes</span><span>▹ PDF Notes</span><span>▹ Test Series</span></div><button class="bluebtn" onclick="toast('Enrollment started')">Enroll Now &nbsp;→</button></article>
+  <article class="pkg"><div class="pkg-img">🎖️</div><h3>SSC GD Special Batch</h3><div><b class="price">₹1,499</b><span class="old">₹2,999</span><span class="off">50% OFF</span></div><div class="pkg-meta"><span>▹ Video Classes</span><span>▹ Live Classes</span><span>▹ PDF Notes</span><span>▹ Test Series</span></div><button class="bluebtn" onclick="toast('Enrollment started')">Enroll Now &nbsp;→</button></article>
+  <article class="pkg"><div class="pkg-img">🧑‍✈️</div><h3>UP Police Batch</h3><div><b class="price">₹1,299</b><span class="old">₹2,599</span><span class="off">50% OFF</span></div><div class="pkg-meta"><span>▹ Video Classes</span><span>▹ Live Classes</span><span>▹ PDF Notes</span><span>▹ Test Series</span></div><button class="bluebtn" onclick="toast('Enrollment started')">Enroll Now &nbsp;→</button></article>
+  <article class="pkg"><div class="pkg-img">📚</div><h3>CTET Foundation Batch</h3><div><b class="price">₹999</b><span class="old">₹1,999</span><span class="off">50% OFF</span></div><div class="pkg-meta"><span>▹ Video Classes</span><span>▹ Live Classes</span><span>▹ PDF Notes</span><span>▹ Test Series</span></div><button class="bluebtn" onclick="toast('Enrollment started')">Enroll Now &nbsp;→</button></article>
+ </div>
+</section>
+</div>
+
+<aside class="right">
+<section class="quick">
+ <h2 class="panel-head"><i>ϟ</i>Quick Actions</h2>
+ <div class="quick-grid">
+  <button onclick="toast('Create Exam opened')"><span>♜</span>Create Exam</button><button onclick="toast('Create Test opened')"><span>▤</span>Create Test</button><button onclick="toast('Add Question opened')"><span>?</span>Add Question</button><button onclick="toast('Upload Material opened')"><span>▣</span>Upload Material</button>
+ </div>
+</section>
+<section class="goal">
+ <div class="goal-head"><h3>🎯 &nbsp;Today's Goal</h3><button class="edit">Edit</button></div>
+ <div class="goal-body"><div class="ring"><b>2/5</b><small>Tests Completed</small></div><div class="quote">“Hard work beats talent when talent doesn't work hard.” 🎯</div></div>
+</section>
+<section class="activity">
+ <div class="panel-title"><h2>◷ &nbsp;Recent Activity</h2><button class="view">View All &nbsp;→</button></div>
+ <div class="activity-list">
+  <div class="act"><div class="act-icon">▤</div><div><strong>RRB Group D - Test 01</strong><small>Test completed • 78% score</small></div><time>2h ago</time></div>
+  <div class="act"><div class="act-icon">▣</div><div><strong>Science Class 02</strong><small>Class watched • 45 min</small></div><time>4h ago</time></div>
+  <div class="act"><div class="act-icon">▥</div><div><strong>Maths Notes</strong><small>PDF downloaded</small></div><time>6h ago</time></div>
+  <div class="act"><div class="act-icon">?</div><div><strong>Question Bank</strong><small>5 new questions added</small></div><time>8h ago</time></div>
+ </div>
+</section>
+<section class="ad"><h2>Prepare Smart<br>Score High</h2><button onclick="toast('Smart preparation started')">Start Now</button><div class="ad-art">🎓📚</div></section>
+</aside>
+</div>
+<div class="footer"><span><b>CRACK EXAM</b> &nbsp; | &nbsp; Your Success, Our Mission</span><span><a>Privacy Policy</a><a>Terms & Conditions</a><a>Help</a></span></div>
+</div>
+</main>
+</div>
+<script>
+function toast(msg){
+ let t=document.getElementById('toast');
+ if(!t){t=document.createElement('div');t.id='toast';t.style.cssText='position:fixed;right:20px;bottom:20px;background:#08223f;color:white;padding:13px 18px;border-radius:10px;z-index:99;box-shadow:0 8px 25px #0004;font-size:13px';document.body.appendChild(t)}
+ t.textContent=msg;t.style.opacity=1;clearTimeout(window.tt);window.tt=setTimeout(()=>t.style.opacity=0,1800)
+}
+</script>
+</body>
+</html>
