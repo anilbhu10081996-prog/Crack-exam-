@@ -1,672 +1,2261 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CRACK EXAM — Your Success, Our Mission</title>
 
-  <title>CRACK EXAM | Your Success, Our Mission</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
 
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/lucide@latest"></script>
-
-  <script>
-    tailwind.config = {
-      darkMode: "class",
-      theme: {
-        extend: {
-          colors: {
-            navy: "#0B1736",
-            primary: "#2563EB",
-            soft: "#F5F7FB"
-          }
-        }
-      }
-    };
-  </script>
-
-  <style>
-    body {
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system,
-        BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
-
-    .glass {
-      background: rgba(255,255,255,.85);
-      backdrop-filter: blur(12px);
-    }
-
-    .dark .glass {
-      background: rgba(15,23,42,.88);
-    }
-
-    .page {
-      display: none;
-    }
-
-    .page.active {
-      display: block;
-    }
-
-    .sidebar-link.active {
-      background: #2563eb;
-      color: white;
-    }
-  </style>
+<style>
+*{box-sizing:border-box}
+body{font-family:Inter,system-ui,sans-serif}
+.sidebar{transition:.25s}
+.overlay{display:none}
+.overlay.show{display:block}
+.card{transition:.2s}
+.card:hover{transform:translateY(-2px)}
+.dark body{background:#0f172a;color:#e2e8f0}
+.dark .surface{background:#1e293b!important;color:#e2e8f0}
+.dark .muted{color:#94a3b8!important}
+.dark .input{background:#334155!important;color:#fff}
+</style>
 </head>
 
-<body class="bg-soft text-slate-800 dark:bg-slate-950 dark:text-slate-100">
+<body class="bg-slate-50">
 
-<!-- =========================================================
-     LOGIN SCREEN
-========================================================= -->
+<div id="app"></div>
 
-<div id="authScreen" class="min-h-screen flex items-center justify-center p-5">
+<script>
 
-  <div class="w-full max-w-md">
+/* =========================================================
+   SUPABASE CONFIGURATION
+   Replace these two values with your real Supabase project
+   ========================================================= */
 
-    <div class="text-center mb-8">
-      <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary text-white text-2xl font-black shadow-lg">
-        CE
-      </div>
+const SUPABASE_URL = 'YOUR_SUPABASE_URL_HERE';
+const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY_HERE';
 
-      <h1 class="text-3xl font-black mt-4">
-        CRACK EXAM
-      </h1>
+const SUPABASE_ENABLED =
+!SUPABASE_URL.includes('YOUR_SUPABASE') &&
+!SUPABASE_ANON_KEY.includes('YOUR_SUPABASE');
 
-      <p class="text-slate-500 dark:text-slate-400">
-        Your Success, Our Mission
-      </p>
-    </div>
+const supabaseClient =
+SUPABASE_ENABLED
+? supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY)
+: null;
 
-    <!-- Login -->
-    <div id="loginBox"
-         class="bg-white dark:bg-slate-900 rounded-3xl shadow-xl border border-slate-200 dark:border-slate-800 p-7">
 
-      <h2 class="text-2xl font-bold mb-1">Welcome Back</h2>
-      <p class="text-sm text-slate-500 mb-6">
-        Login to continue your preparation.
-      </p>
+/* =========================================================
+   LOCAL APPLICATION STATE
+   ========================================================= */
 
-      <form id="loginForm" class="space-y-4">
+const STORAGE_KEY="crack_exam_app_v1";
 
-        <div>
-          <label class="text-sm font-semibold">Email</label>
-          <input id="loginEmail"
-                 type="email"
-                 required
-                 class="w-full mt-2 px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 dark:bg-slate-800 outline-none focus:ring-2 focus:ring-primary"
-                 placeholder="you@example.com">
-        </div>
+let state=JSON.parse(
+localStorage.getItem(STORAGE_KEY)||"null"
+)||{
 
-        <div>
-          <label class="text-sm font-semibold">Password</label>
-          <input id="loginPassword"
-                 type="password"
-                 required
-                 class="w-full mt-2 px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 dark:bg-slate-800 outline-none focus:ring-2 focus:ring-primary"
-                 placeholder="••••••••">
-        </div>
+user:null,
 
-        <button
-          class="w-full bg-primary hover:bg-blue-700 text-white py-3 rounded-xl font-bold">
-          Login
-        </button>
+page:"dashboard",
 
-      </form>
+dark:false,
 
-      <p id="loginMessage" class="text-sm mt-4"></p>
+result:null,
 
-      <div class="text-center mt-5">
-        <button onclick="showRegister()"
-                class="text-primary font-semibold">
-          Create New Account
-        </button>
-      </div>
+tests:[
 
-    </div>
+{
+id:1,
+title:"SSC GD Mock Test 01",
+category:"SSC",
+questions:[
+{
+q:"भारत का संविधान कब लागू हुआ?",
+options:[
+"15 अगस्त 1947",
+"26 जनवरी 1950",
+"26 नवंबर 1949",
+"2 अक्टूबर 1950"
+],
+answer:1
+},
+{
+q:"15 × 8 = ?",
+options:["100","110","120","130"],
+answer:2
+}
+]
+},
 
-    <!-- Register -->
-    <div id="registerBox"
-         class="hidden bg-white dark:bg-slate-900 rounded-3xl shadow-xl border border-slate-200 dark:border-slate-800 p-7">
+{
+id:2,
+title:"Railway Group D Practice",
+category:"Railway",
+questions:[
+{
+q:"भारत की राजधानी क्या है?",
+options:["मुंबई","नई दिल्ली","कोलकाता","चेन्नई"],
+answer:1
+},
+{
+q:"जल का रासायनिक सूत्र क्या है?",
+options:["CO2","O2","H2O","NaCl"],
+answer:2
+}
+]
+}
 
-      <h2 class="text-2xl font-bold mb-1">Create Account</h2>
+],
 
-      <p class="text-sm text-slate-500 mb-6">
-        Start your exam preparation today.
-      </p>
+users:[
 
-      <form id="registerForm" class="space-y-4">
+{
+id:1,
+name:"CRACK EXAM Admin",
+email:"admin@crackexam.com",
+role:"Admin"
+},
 
-        <div>
-          <label class="text-sm font-semibold">Full Name</label>
-          <input id="registerName"
-                 required
-                 class="w-full mt-2 px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 dark:bg-slate-800"
-                 placeholder="Your name">
-        </div>
+{
+id:2,
+name:"Demo Student",
+email:"student@crackexam.com",
+role:"Student"
+}
 
-        <div>
-          <label class="text-sm font-semibold">Email</label>
-          <input id="registerEmail"
-                 type="email"
-                 required
-                 class="w-full mt-2 px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 dark:bg-slate-800"
-                 placeholder="you@example.com">
-        </div>
+],
 
-        <div>
-          <label class="text-sm font-semibold">Password</label>
-          <input id="registerPassword"
-                 type="password"
-                 minlength="8"
-                 required
-                 class="w-full mt-2 px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 dark:bg-slate-800"
-                 placeholder="Minimum 8 characters">
-        </div>
+fees:[
 
-        <button
-          class="w-full bg-primary hover:bg-blue-700 text-white py-3 rounded-xl font-bold">
-          Create Account
-        </button>
+{
+id:1,
+user:"Demo Student",
+course:"SSC GD",
+amount:999,
+status:"Paid"
+}
 
-      </form>
+],
 
-      <p id="registerMessage" class="text-sm mt-4"></p>
+batches:[
 
-      <div class="text-center mt-5">
-        <button onclick="showLogin()"
-                class="text-primary font-semibold">
-          Already have an account? Login
-        </button>
-      </div>
+{
+id:1,
+name:"SSC GD 2026",
+teacher:"Anil Sir",
+students:42
+}
 
-    </div>
+]
 
-  </div>
+};
+
+
+/* =========================================================
+   HELPERS
+   ========================================================= */
+
+function save(){
+
+localStorage.setItem(
+STORAGE_KEY,
+JSON.stringify(state)
+);
+
+}
+
+function escapeHTML(value){
+
+return String(value??"")
+.replace(/[&<>"']/g,function(m){
+
+return {
+"&":"&amp;",
+"<":"&lt;",
+">":"&gt;",
+'"':"&quot;",
+"'":"&#39;"
+}[m];
+
+});
+
+}
+
+function isAdmin(){
+
+return state.user &&
+state.user.role==="Admin";
+
+}
+
+function toast(message){
+
+const box=document.createElement("div");
+
+box.className=
+"fixed bottom-5 left-1/2 -translate-x-1/2 z-[9999] bg-slate-900 text-white px-5 py-3 rounded-xl shadow-xl";
+
+box.textContent=message;
+
+document.body.appendChild(box);
+
+setTimeout(()=>box.remove(),2200);
+
+}
+
+function icon(name){
+
+return `<i data-lucide="${name}" class="w-5 h-5"></i>`;
+
+}
+
+
+/* =========================================================
+   NAVIGATION
+   ========================================================= */
+
+function navigate(page){
+
+const adminPages=[
+"admin",
+"builder",
+"users",
+"fees",
+"batches"
+];
+
+if(adminPages.includes(page) && !isAdmin()){
+
+toast("Admin access required");
+
+return;
+
+}
+
+state.page=page;
+
+save();
+
+render();
+
+}
+
+
+/* =========================================================
+   SIDEBAR
+   ========================================================= */
+
+function navButton(page,title,iconName){
+
+return `
+<button
+onclick="navigate('${page}')"
+class="w-full flex items-center gap-3 px-4 py-3 rounded-xl
+${state.page===page
+?"bg-blue-600 text-white"
+:"hover:bg-slate-100 text-slate-700"}">
+
+${icon(iconName)}
+
+<span>${title}</span>
+
+</button>
+`;
+
+}
+
+
+/* =========================================================
+   LAYOUT
+   ========================================================= */
+
+function layout(content){
+
+return `
+
+<div class="min-h-screen flex">
+
+<!-- SIDEBAR -->
+
+<aside
+id="sidebar"
+class="sidebar fixed lg:sticky top-0 left-0 z-50
+w-72 h-screen bg-white border-r p-4
+-translate-x-full lg:translate-x-0">
+
+<div class="flex items-center gap-3 p-3 mb-6">
+
+<div class="w-11 h-11 rounded-xl bg-blue-600
+text-white grid place-items-center font-black">
+CE
+</div>
+
+<div>
+<div class="font-black">CRACK EXAM</div>
+<div class="text-xs text-slate-500">
+Your Success, Our Mission
+</div>
+</div>
+
 </div>
 
 
-<!-- =========================================================
-     APPLICATION
-========================================================= -->
-
-<div id="app" class="hidden min-h-screen">
-
-  <!-- SIDEBAR -->
-  <aside id="sidebar"
-         class="fixed z-40 inset-y-0 left-0 w-72 bg-navy text-white transform -translate-x-full lg:translate-x-0 transition-transform">
-
-    <div class="h-full flex flex-col">
-
-      <div class="p-6 border-b border-white/10">
-        <div class="flex items-center gap-3">
-          <div class="w-11 h-11 rounded-xl bg-blue-500 flex items-center justify-center font-black">
-            CE
-          </div>
-
-          <div>
-            <h2 class="font-black text-lg">CRACK EXAM</h2>
-            <p class="text-xs text-blue-200">
-              Your Success, Our Mission
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <nav class="p-4 space-y-1 overflow-y-auto">
-
-        <button onclick="openPage('home')"
-                class="sidebar-link active w-full flex gap-3 items-center px-4 py-3 rounded-xl text-left">
-          <i data-lucide="home"></i>
-          Home
-        </button>
-
-        <button onclick="openPage('exams')"
-                class="sidebar-link w-full flex gap-3 items-center px-4 py-3 rounded-xl text-left">
-          <i data-lucide="graduation-cap"></i>
-          Exams
-        </button>
-
-        <button onclick="openPage('books')"
-                class="sidebar-link w-full flex gap-3 items-center px-4 py-3 rounded-xl text-left">
-          <i data-lucide="book-open"></i>
-          Digital Textbook
-        </button>
-
-        <button onclick="openPage('tests')"
-                class="sidebar-link w-full flex gap-3 items-center px-4 py-3 rounded-xl text-left">
-          <i data-lucide="clipboard-check"></i>
-          Test Series
-        </button>
+<nav class="space-y-1">
 
-        <button onclick="openPage('results')"
-                class="sidebar-link w-full flex gap-3 items-center px-4 py-3 rounded-xl text-left">
-          <i data-lucide="bar-chart-3"></i>
-          My Results
-        </button>
+${navButton("dashboard","Dashboard","layout-dashboard")}
 
-        <button onclick="openPage('classes')"
-                class="sidebar-link w-full flex gap-3 items-center px-4 py-3 rounded-xl text-left">
-          <i data-lucide="video"></i>
-          Classes
-        </button>
+${navButton("exams","Exams","clipboard-check")}
 
-        <button onclick="openPage('materials')"
-                class="sidebar-link w-full flex gap-3 items-center px-4 py-3 rounded-xl text-left">
-          <i data-lucide="folder-open"></i>
-          Study Material
-        </button>
+${navButton("series","Test Series","layers")}
 
-        <button onclick="openPage('help')"
-                class="sidebar-link w-full flex gap-3 items-center px-4 py-3 rounded-xl text-left">
-          <i data-lucide="message-circle"></i>
-          Help Desk
-        </button>
+${navButton("practice","Practice Questions","brain")}
 
-        <!-- ADMIN LINK IS CREATED ONLY FOR ADMIN -->
-        <div id="adminNavigation" class="hidden pt-5 mt-4 border-t border-white/10">
+${navButton("books","Digital Books","book-open")}
 
-          <p class="text-xs text-blue-300 uppercase font-bold px-4 mb-2">
-            Administration
-          </p>
+${navButton("live","Live Classes","video")}
 
-          <button onclick="openPage('admin')"
-                  class="sidebar-link w-full flex gap-3 items-center px-4 py-3 rounded-xl text-left">
-            <i data-lucide="shield-check"></i>
-            Admin Panel
-          </button>
+${navButton("results","Performance","bar-chart-3")}
 
-        </div>
 
-      </nav>
+${
+isAdmin()
+?
 
-      <div class="mt-auto p-4 border-t border-white/10">
+`
 
-        <button onclick="logout()"
-                class="w-full flex gap-3 items-center px-4 py-3 rounded-xl hover:bg-white/10">
-          <i data-lucide="log-out"></i>
-          Logout
-        </button>
+<div class="pt-5 pb-2 px-3 text-xs
+font-bold text-slate-400">
+ADMINISTRATION
+</div>
 
-      </div>
+${navButton("admin","Admin Dashboard","shield-check")}
 
-    </div>
-  </aside>
+${navButton("builder","Test Builder","file-plus-2")}
 
+${navButton("users","User Management","users")}
 
-  <!-- MAIN -->
-  <div class="lg:ml-72">
+${navButton("fees","Fee Payments","indian-rupee")}
 
-    <!-- HEADER -->
-    <header class="sticky top-0 z-30 glass border-b border-slate-200 dark:border-slate-800">
+${navButton("batches","Batches","school")}
 
-      <div class="px-5 lg:px-8 py-4 flex items-center justify-between">
+`
 
-        <button onclick="toggleSidebar()"
-                class="lg:hidden p-2 rounded-lg bg-slate-100 dark:bg-slate-800">
-          <i data-lucide="menu"></i>
-        </button>
+:""
 
-        <div class="hidden md:block">
-          <p class="text-xs text-slate-500">Welcome back</p>
-          <h2 id="headerName" class="font-bold">Student</h2>
-        </div>
+}
 
-        <div class="flex items-center gap-3">
+</nav>
 
-          <button class="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800">
-            <i data-lucide="bell"></i>
-          </button>
 
-          <div class="flex items-center gap-2">
-            <div class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold">
-              <span id="profileInitial">S</span>
-            </div>
+<div class="absolute bottom-5 left-4 right-4">
 
-            <div class="hidden sm:block">
-              <p id="profileName" class="text-sm font-bold">Student</p>
-              <p id="profileRole" class="text-xs text-slate-500">Student</p>
-            </div>
-          </div>
+${
+state.user
 
-        </div>
+?
 
-      </div>
+`
 
-    </header>
+<div class="bg-slate-100 rounded-xl p-3 mb-2">
 
+<div class="font-bold text-sm">
+${escapeHTML(state.user.name)}
+</div>
 
-    <main class="p-5 lg:p-8">
+<div class="text-xs text-slate-500">
+${state.user.role}
+</div>
 
-      <!-- HOME -->
-      <section id="page-home" class="page active">
+</div>
 
-        <div class="rounded-3xl bg-gradient-to-r from-navy to-blue-700 text-white p-7 lg:p-10">
+<button
+onclick="logout()"
+class="w-full bg-slate-900 text-white p-3 rounded-xl font-bold">
+Logout
+</button>
 
-          <span class="inline-block bg-white/10 px-3 py-1 rounded-full text-xs font-bold">
-            CRACK EXAM
-          </span>
+`
 
-          <h1 class="text-3xl lg:text-5xl font-black mt-5">
-            आपकी तैयारी,<br>
-            हमारी जिम्मेदारी
-          </h1>
+:
 
-          <p class="mt-4 text-blue-100 max-w-2xl">
-            Learn from digital textbooks, practice with MCQs,
-            take mock tests and track your performance.
-          </p>
+`
 
-          <div class="flex flex-wrap gap-3 mt-7">
+<button
+onclick="openAuth('login')"
+class="w-full bg-blue-600 text-white p-3 rounded-xl font-bold">
+Login
+</button>
 
-            <button onclick="openPage('books')"
-                    class="bg-white text-navy px-5 py-3 rounded-xl font-bold">
-              Start Learning
-            </button>
+`
 
-            <button onclick="openPage('tests')"
-                    class="bg-blue-500 px-5 py-3 rounded-xl font-bold">
-              Explore Tests
-            </button>
+}
 
-          </div>
+</div>
 
-        </div>
+</aside>
 
 
-        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 mt-6">
+<!-- MAIN -->
 
-          <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border dark:border-slate-800">
-            <p class="text-sm text-slate-500">Tests Available</p>
-            <h3 id="homeTestCount" class="text-3xl font-black mt-2">0</h3>
-          </div>
+<main class="flex-1 min-w-0">
 
-          <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border dark:border-slate-800">
-            <p class="text-sm text-slate-500">Questions</p>
-            <h3 class="text-3xl font-black mt-2">5000+</h3>
-          </div>
+<header
+class="sticky top-0 z-30 bg-white/95 backdrop-blur border-b">
 
-          <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border dark:border-slate-800">
-            <p class="text-sm text-slate-500">Subjects</p>
-            <h3 class="text-3xl font-black mt-2">10+</h3>
-          </div>
+<div class="p-3 flex items-center gap-3">
 
-          <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border dark:border-slate-800">
-            <p class="text-sm text-slate-500">Study Streak</p>
-            <h3 class="text-3xl font-black mt-2">0 Days</h3>
-          </div>
+<button
+onclick="toggleSidebar()"
+class="lg:hidden p-2 rounded-lg hover:bg-slate-100">
 
-        </div>
+${icon("menu")}
 
+</button>
 
-        <div class="mt-8">
 
-          <h2 class="text-2xl font-black">
-            Popular Exams
-          </h2>
+<div class="flex-1 max-w-xl">
 
-          <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-5 mt-4">
+<input
+id="searchBox"
+onkeydown="if(event.key==='Enter')performSearch()"
+placeholder="Search exams, books, tests..."
+class="input w-full bg-slate-100 p-3 rounded-xl outline-none">
 
-            <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border dark:border-slate-800">
-              <span class="text-xs font-bold text-blue-600">RAILWAY</span>
-              <h3 class="font-bold text-lg mt-2">RRB Group D</h3>
-              <p class="text-sm text-slate-500 mt-2">Maths • Reasoning • Science • GK</p>
-            </div>
+</div>
 
-            <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border dark:border-slate-800">
-              <span class="text-xs font-bold text-blue-600">SSC</span>
-              <h3 class="font-bold text-lg mt-2">SSC GD</h3>
-              <p class="text-sm text-slate-500 mt-2">GK • Reasoning • Maths • English</p>
-            </div>
 
-            <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border dark:border-slate-800">
-              <span class="text-xs font-bold text-blue-600">POLICE</span>
-              <h3 class="font-bold text-lg mt-2">UP Police</h3>
-              <p class="text-sm text-slate-500 mt-2">GK • Reasoning • Hindi • Current Affairs</p>
-            </div>
+<button
+onclick="toast('No new notifications')"
+class="p-3 relative">
 
-            <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border dark:border-slate-800">
-              <span class="text-xs font-bold text-blue-600">TEACHING</span>
-              <h3 class="font-bold text-lg mt-2">CTET</h3>
-              <p class="text-sm text-slate-500 mt-2">CDP • Maths • EVS • Language</p>
-            </div>
+${icon("bell")}
 
-          </div>
+<span
+class="absolute -top-1 -right-1
+bg-red-500 text-white text-[10px]
+rounded-full px-1.5">
+3
+</span>
 
-        </div>
+</button>
 
-      </section>
 
+<button
+onclick="toggleDarkMode()"
+class="p-3">
 
-      <!-- EXAMS -->
-      <section id="page-exams" class="page">
+${icon(state.dark?"sun":"moon")}
 
-        <h1 class="text-3xl font-black">Exams</h1>
+</button>
 
-        <p class="text-slate-500 mt-2">
-          Choose your target examination.
-        </p>
+</div>
 
-        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5 mt-6">
+</header>
 
-          <div class="card-style">
-            <h3 class="font-black text-xl">RRB Group D</h3>
-            <p class="text-slate-500 mt-2">Railway preparation</p>
-          </div>
 
-          <div class="card-style">
-            <h3 class="font-black text-xl">SSC GD</h3>
-            <p class="text-slate-500 mt-2">SSC Constable preparation</p>
-          </div>
+<section class="p-4 md:p-6 lg:p-8">
 
-          <div class="card-style">
-            <h3 class="font-black text-xl">UP Police</h3>
-            <p class="text-slate-500 mt-2">Police recruitment preparation</p>
-          </div>
+${content}
 
-          <div class="card-style">
-            <h3 class="font-black text-xl">CTET</h3>
-            <p class="text-slate-500 mt-2">Teacher eligibility preparation</p>
-          </div>
+</section>
 
-        </div>
+</main>
 
-      </section>
+</div>
 
+`;
 
-      <!-- BOOKS -->
-      <section id="page-books" class="page">
+}
 
-        <h1 class="text-3xl font-black">
-          Digital Textbook
-        </h1>
 
-        <p class="text-slate-500 mt-2">
-          Read chapter-wise concepts and revise faster.
-        </p>
+/* =========================================================
+   COMMON UI
+   ========================================================= */
 
-        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5 mt-6">
+function heading(title,description){
 
-          <div class="card-style">
-            <div class="text-3xl">⚡</div>
-            <h3 class="font-black text-xl mt-3">Physics</h3>
-            <p class="text-slate-500 mt-2">
-              Motion, Force, Heat, Light, Electricity, Magnetism
-            </p>
-            <button class="btn-blue mt-4">
-              Open Book
-            </button>
-          </div>
+return `
 
-          <div class="card-style">
-            <div class="text-3xl">➗</div>
-            <h3 class="font-black text-xl mt-3">Mathematics</h3>
-            <p class="text-slate-500 mt-2">
-              Percentage, Ratio, Average, Algebra, Geometry
-            </p>
-            <button class="btn-blue mt-4">
-              Open Book
-            </button>
-          </div>
+<div class="mb-7">
 
-          <div class="card-style">
-            <div class="text-3xl">🧠</div>
-            <h3 class="font-black text-xl mt-3">Reasoning</h3>
-            <p class="text-slate-500 mt-2">
-              Series, Analogy, Coding, Direction, Puzzle
-            </p>
-            <button class="btn-blue mt-4">
-              Open Book
-            </button>
-          </div>
+<h1 class="text-3xl font-black">
+${title}
+</h1>
 
-        </div>
+<p class="muted text-slate-500 mt-1">
+${description}
+</p>
 
-      </section>
+</div>
 
+`;
 
-      <!-- TESTS -->
-      <section id="page-tests" class="page">
+}
 
-        <div class="flex flex-wrap justify-between gap-4 items-center">
+function card(content){
 
-          <div>
-            <h1 class="text-3xl font-black">
-              Test Series
-            </h1>
+return `
 
-            <p class="text-slate-500 mt-2">
-              Practice and improve your score.
-            </p>
-          </div>
+<div class="surface card bg-white border border-slate-200
+rounded-2xl p-5 shadow-sm">
 
-          <button onclick="loadTests()"
-                  class="px-4 py-2 rounded-xl bg-slate-200 dark:bg-slate-800 font-bold">
-            Refresh
-          </button>
+${content}
 
-        </div>
+</div>
 
-        <div id="testList"
-             class="grid md:grid-cols-2 lg:grid-cols-3 gap-5 mt-6">
+`;
 
-        </div>
+}
 
-      </section>
 
+/* =========================================================
+   DASHBOARD
+   ========================================================= */
 
-      <!-- RESULTS -->
-      <section id="page-results" class="page">
+function dashboard(){
 
-        <h1 class="text-3xl font-black">
-          My Results
-        </h1>
+return heading(
+"Welcome"+(state.user?", "+escapeHTML(state.user.name):"")+" 👋",
+"Your complete exam preparation dashboard."
+)
 
-        <div class="grid md:grid-cols-3 gap-5 mt-6">
++
 
-          <div class="card-style">
-            <p class="text-slate-500">Tests Attempted</p>
-            <h2 class="text-3xl font-black mt-2">0</h2>
-          </div>
+(
 
-          <div class="card-style">
-            <p class="text-slate-500">Average Accuracy</p>
-            <h2 class="text-3xl font-black mt-2">0%</h2>
-          </div>
+state.user
 
-          <div class="card-style">
-            <p class="text-slate-500">Best Score</p>
-            <h2 class="text-3xl font-black mt-2">—</h2>
-          </div>
+?
 
-        </div>
+""
 
-      </section>
+:
 
+`
 
-      <!-- CLASSES -->
-      <section id="page-classes" class="page">
+<div class="mb-7 rounded-3xl bg-blue-600
+text-white p-7">
 
-        <h1 class="text-3xl font-black">
-          Classes
-        </h1>
+<div class="text-sm uppercase tracking-wider
+text-blue-200 font-bold">
+CRACK EXAM
+</div>
 
-        <div class="card-style mt-6">
+<h2 class="text-3xl md:text-4xl font-black mt-2">
+Your Success, Our Mission
+</h2>
 
-          <div class="flex gap-4">
+<p class="mt-3 text-blue-100">
+Prepare for SSC, Railway, Police and other exams.
+</p>
 
-            <div class="w-14 h-14 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center">
-              <i data-lucide="video"></i>
-            </div>
+<button
+onclick="openAuth('register')"
+class="mt-6 bg-white text-blue-700
+px-6 py-3 rounded-xl font-bold">
+Create Free Account
+</button>
 
-            <div>
-              <h3 class="font-black text-lg">
-                RRB Group D Foundation Batch
-              </h3>
+</div>
 
-              <p class="text-sm text-slate-500 mt-1">
-                Live + Recorded Classes
-              </p>
+`
 
-              <p class="text-sm text-slate-500 mt-2">
-                120 Classes • 50 Tests • 5000+ Questions
-              </p>
-            </div>
+)
 
-          </div>
++
 
-        </div>
+`
 
-      </section>
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
 
+${card("<div class='text-3xl font-black'>7</div><div class='muted text-slate-500'>Study Streak</div>")}
 
-      <!-- MATERIAL -->
-      <section id="page-materials" class="page">
+${card("<div class='text-3xl font-black text-blue-600'>82%</div><div class='muted text-slate-500'>Progress</div>")}
 
-        <h1 class="text-3xl font-black">
-          Study Material
-        </h1>
+${card("<div class='text-3xl font-black'>12</div><div class='muted text-slate-500'>Tests Completed</div>")}
 
-        <div class="grid md:grid-cols-3 gap-5 mt-6">
+${card("<div class='text-3xl font-black text-green-600'>78%</div><div class='muted text-slate-500'>Average Score</div>")}
 
-          <div class="card-style">
-            <i data-lucide="file-text" class="text-primary"></i>
-            <h3 class="font-bold mt-4">Short Notes</h3>
-            <p class="text-sm text-slate-500 mt-2">
-              Quick revision notes.
-            </p>
-          </div>
+</div>
 
-          <div class="card-style">
-            <i data-lucide="file-down" class="text-primary"></i>
-            <h3 class="font-bold mt-4">PDF Books</h3>
-            <p class="text-sm text-slate-500 mt-2">
-              Chapter-wise study PDFs.
-            </p>
-          </div>
 
-          <div class="card-style">
-            <i data-lucide="history" class="text-primary"></i>
-            <h3 class="font-bold mt-4">Previous Year Papers</h3>
-            <p class="text-sm text-slate-500 mt-2">
-              Previous year practice.
-            </p>
-          </div>
+<div class="grid lg:grid-cols-2 gap-5 mt-6">
 
-        </div>
+${card(`
 
-      </section>
+<h2 class="text-xl font-bold mb-4">
+Quick Start
+</h2>
 
+<div class="grid grid-cols-2 gap-3">
 
-      <!-- HELP DESK -->
-      <section id="page-help" class="page">
+<button onclick="navigate('exams')"
+class="p-4 border rounded-xl text-left hover:border-blue-500">
+${icon("clipboard-check")}
+<div class="font-bold mt-2">Exams</div>
+</button>
 
-        <h1 class="text-3xl font-black">
-          Help Desk
-        </h1>
+<button onclick="navigate('practice')"
+class="p-4 border rounded-xl text-left hover:border-blue-500">
+${icon("brain")}
+<div class="font-bold mt-2">Practice</div>
+</button>
 
-        <p class="text-slate-500 mt-2">
-          Need help? Send us a support request.
-        </p>
+<button onclick="navigate('books')"
+class="p-4 border rounded-xl text-left hover:border-blue-500">
+${icon("book-open")}
+<div class="font-bold mt-2">Books</div>
+</button>
 
-        <div 
+<button onclick="navigate('live')"
+class="p-4 border rounded-xl text-left hover:border-blue-500">
+${icon("video")}
+<div class="font-bold mt-2">Live Classes</div>
+</button>
+
+</div>
+
+`)}
+
+
+${card(`
+
+<h2 class="text-xl font-bold mb-4">
+Today's Goal
+</h2>
+
+<div class="flex items-center gap-5">
+
+<div class="text-5xl font-black text-blue-600">
+70%
+</div>
+
+<div>
+<div class="font-bold">
+35 / 50 Questions
+</div>
+<div class="text-sm text-slate-500">
+Keep going!
+</div>
+</div>
+
+</div>
+
+<div class="mt-5 h-3 bg-slate-100 rounded-full overflow-hidden">
+
+<div class="h-full bg-blue-600"
+style="width:70%"></div>
+
+</div>
+
+`)}
+
+</div>
+
+`;
+
+}
+
+
+/* =========================================================
+   EXAMS
+   ========================================================= */
+
+function exams(){
+
+return heading(
+"Exams",
+"Choose an exam and start your preparation."
+)
+
++
+
+`
+
+<div class="grid md:grid-cols-2 xl:grid-cols-3 gap-5">
+
+${state.tests.map(test=>card(`
+
+<span class="text-xs font-bold text-blue-600">
+${escapeHTML(test.category)}
+</span>
+
+<h2 class="text-xl font-bold mt-2">
+${escapeHTML(test.title)}
+</h2>
+
+<p class="text-sm text-slate-500 mt-2">
+${test.questions.length} Questions
+</p>
+
+<button
+onclick="startTest(${test.id})"
+class="w-full mt-5 bg-blue-600
+text-white p-3 rounded-xl font-bold">
+Start Test
+</button>
+
+`)).join("")}
+
+</div>
+
+`;
+
+}
+
+
+/* =========================================================
+   TEST SERIES
+   ========================================================= */
+
+function series(){
+
+const items=[
+"SSC Complete Series",
+"Railway Master Series",
+"UP Police Series",
+"General Knowledge Series",
+"School Scholarship Series",
+"Daily Challenge"
+];
+
+return heading(
+"Test Series",
+"Topic-wise and full-length practice."
+)
+
++
+
+`
+
+<div class="grid md:grid-cols-2 xl:grid-cols-3 gap-5">
+
+${items.map(x=>card(`
+
+<h2 class="text-lg font-bold">
+${x}
+</h2>
+
+<p class="text-sm text-slate-500 mt-2">
+Multiple practice tests
+</p>
+
+<button
+onclick="toast('${x} opened')"
+class="mt-5 border border-blue-600
+text-blue-600 px-4 py-2 rounded-xl font-bold">
+Explore Series
+</button>
+
+`)).join("")}
+
+</div>
+
+`;
+
+}
+
+
+/* =========================================================
+   PRACTICE
+   ========================================================= */
+
+function practice(){
+
+const questions=[
+
+{
+q:"भारत का राष्ट्रीय पशु कौन है?",
+a:["बाघ","सिंह","हाथी","मोर"],
+c:0
+},
+
+{
+q:"12 × 12 = ?",
+a:["124","144","154","164"],
+c:1
+},
+
+{
+q:"जल का रासायनिक सूत्र?",
+a:["CO2","O2","H2O","H2"],
+c:2
+}
+
+];
+
+return heading(
+"Practice Questions",
+"Solve questions instantly and improve accuracy."
+)
+
++
+
+`
+
+<div class="max-w-3xl space-y-5">
+
+${questions.map((q,index)=>card(`
+
+<div class="text-sm text-blue-600 font-bold">
+Question ${index+1}
+</div>
+
+<h2 class="text-lg font-bold mt-2">
+${q.q}
+</h2>
+
+<div class="grid sm:grid-cols-2 gap-3 mt-4">
+
+${q.a.map((a,j)=>`
+
+<button
+onclick="toast(${j===q.c
+?"'Correct answer 🎉'"
+:"'Wrong answer'"} )"
+class="p-3 text-left border rounded-xl
+hover:border-blue-500">
+${a}
+</button>
+
+`).join("")}
+
+</div>
+
+`)).join("")}
+
+</div>
+
+`;
+
+}
+
+
+/* =========================================================
+   BOOKS
+   ========================================================= */
+
+function books(){
+
+const books=[
+"Class 6–10 Science",
+"Maths & Reasoning",
+"General Knowledge",
+"English Grammar",
+"Current Affairs",
+"Digital Skills"
+];
+
+return heading(
+"Digital Textbook Library",
+"Study material for school and competitive exams."
+)
+
++
+
+`
+
+<div class="grid md:grid-cols-2 xl:grid-cols-3 gap-5">
+
+${books.map(book=>card(`
+
+<div class="w-11 h-11 rounded-xl bg-blue-50
+text-blue-600 grid place-items-center">
+${icon("book-open")}
+</div>
+
+<h2 class="font-bold text-lg mt-4">
+${book}
+</h2>
+
+<p class="text-sm text-slate-500 mt-2">
+Digital study material
+</p>
+
+<button
+onclick="toast('${book} opened')"
+class="mt-4 text-blue-600 font-bold">
+Open Book →
+</button>
+
+`)).join("")}
+
+</div>
+
+`;
+
+}
+
+
+/* =========================================================
+   LIVE CLASSES
+   ========================================================= */
+
+function live(){
+
+const classes=[
+["Maths & Reasoning","Anil Sir"],
+["Hindi & GK","Rahul Sir"],
+["Science & Current Affairs","Ajay Sir"]
+];
+
+return heading(
+"Live Classes",
+"Join scheduled online classes."
+)
+
++
+
+`
+
+<div class="grid md:grid-cols-3 gap-5">
+
+${classes.map(x=>card(`
+
+<div class="w-11 h-11 bg-red-50
+text-red-600 rounded-xl grid place-items-center">
+${icon("video")}
+</div>
+
+<h2 class="font-bold text-lg mt-4">
+${x[0]}
+</h2>
+
+<p class="text-slate-500">
+${x[1]}
+</p>
+
+<p class="text-sm mt-3">
+Today • Online
+</p>
+
+<button
+onclick="toast('Class link opened')"
+class="mt-4 w-full bg-blue-600
+text-white p-3 rounded-xl font-bold">
+Join Class
+</button>
+
+`)).join("")}
+
+</div>
+
+`;
+
+}
+
+
+/* =========================================================
+   RESULTS
+   ========================================================= */
+
+function results(){
+
+return heading(
+"Performance Results",
+"Review your scores and improve weak areas."
+)
+
++
+
+(
+
+state.result
+
+?
+
+card(`
+
+<h2 class="text-xl font-bold">
+${escapeHTML(state.result.title)}
+</h2>
+
+<div class="text-6xl font-black
+text-blue-600 mt-5">
+${state.result.score}%
+</div>
+
+<p class="mt-2">
+${state.result.correct}
+correct out of
+${state.result.total}
+</p>
+
+`)
+
+:
+
+card(`
+
+<div class="text-center py-10">
+
+<div class="text-5xl mb-4">
+📊
+</div>
+
+<h2 class="font-bold text-xl">
+No result yet
+</h2>
+
+<p class="text-slate-500 mt-2">
+Complete a mock test first.
+</p>
+
+<button
+onclick="navigate('exams')"
+class="mt-5 bg-blue-600
+text-white px-5 py-3 rounded-xl">
+Start Exam
+</button>
+
+</div>
+
+`)
+
+);
+
+}
+
+
+/* =========================================================
+   ADMIN DASHBOARD
+   ========================================================= */
+
+function adminDashboard(){
+
+return heading(
+"Admin Dashboard",
+"Control CRACK EXAM platform."
+)
+
++
+
+`
+
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+
+${card("<div class='text-3xl font-black'>"+state.users.length+"</div><div>Users</div>")}
+
+${card("<div class='text-3xl font-black'>"+state.tests.length+"</div><div>Tests</div>")}
+
+${card("<div class='text-3xl font-black'>"+state.fees.length+"</div><div>Payments</div>")}
+
+${card("<div class='text-3xl font-black'>"+state.batches.length+"</div><div>Batches</div>")}
+
+</div>
+
+
+<div class="grid md:grid-cols-2 gap-5 mt-6">
+
+${card(`
+
+<h2 class="font-bold text-xl">
+Test Management
+</h2>
+
+<p class="text-slate-500 mt-2">
+Create and publish custom tests.
+</p>
+
+<button
+onclick="navigate('builder')"
+class="mt-5 bg-blue-600
+text-white px-5 py-3 rounded-xl">
+Open Test Builder
+</button>
+
+`)}
+
+
+${card(`
+
+<h2 class="font-bold text-xl">
+User Management
+</h2>
+
+<p class="text-slate-500 mt-2">
+Manage student accounts and roles.
+</p>
+
+<button
+onclick="navigate('users')"
+class="mt-5 bg-blue-600
+text-white px-5 py-3 rounded-xl">
+Manage Users
+</button>
+
+`)}
+
+</div>
+
+`;
+
+}
+
+
+/* =========================================================
+   ADMIN TEST BUILDER
+   ========================================================= */
+
+function builder(){
+
+return heading(
+"Test Builder",
+"Create and publish custom exams."
+)
+
++
+
+card(`
+
+<form onsubmit="createTest(event)"
+class="space-y-4">
+
+<input
+name="title"
+required
+placeholder="Test title"
+class="input w-full p-3 bg-slate-100 rounded-xl">
+
+<input
+name="category"
+required
+placeholder="Category e.g. SSC"
+class="input w-full p-3 bg-slate-100 rounded-xl">
+
+<textarea
+name="questions"
+placeholder="Question|Option A|Option B|Option C|Option D|Correct option number
+
+Example:
+2+2=?|3|4|5|6|2"
+class="input w-full min-h-40 p-3 bg-slate-100 rounded-xl">
+</textarea>
+
+<button
+class="w-full bg-blue-600
+text-white p-3 rounded-xl font-bold">
+Create & Publish Test
+</button>
+
+</form>
+
+`)
+
++
+
+`
+
+<div class="mt-6 space-y-3">
+
+${state.tests.map(test=>card(`
+
+<div class="flex items-center justify-between gap-3">
+
+<div>
+<b>${escapeHTML(test.title)}</b>
+<div class="text-sm text-slate-500">
+${escapeHTML(test.category)}
+</div>
+</div>
+
+<button
+onclick="deleteTest(${test.id})"
+class="text-red-600 font-bold">
+Delete
+</button>
+
+</div>
+
+`)).join("")}
+
+</div>
+
+`;
+
+}
+
+
+/* =========================================================
+   USER MANAGEMENT
+   ========================================================= */
+
+function users(){
+
+return heading(
+"User Management",
+"Manage platform users and roles."
+)
+
++
+
+card(`
+
+<div class="space-y-3">
+
+${state.users.map(user=>`
+
+<div class="flex items-center justify-between
+border-b last:border-0 p-3">
+
+<div>
+
+<div class="font-bold">
+${escapeHTML(user.name)}
+</div>
+
+<div class="text-sm text-slate-500">
+${escapeHTML(user.email)}
+</div>
+
+</div>
+
+<button
+onclick="toggleRole(${user.id})"
+class="px-3 py-2 rounded-lg
+bg-blue-50 text-blue-700 font-bold">
+${user.role}
+</button>
+
+</div>
+
+`).join("")}
+
+</div>
+
+`);
+
+}
+
+
+/* =========================================================
+   FEES
+   ========================================================= */
+
+function fees(){
+
+return heading(
+"Fee Payments",
+"Track student payment status."
+)
+
++
+
+card(`
+
+<div class="space-y-3">
+
+${state.fees.map(fee=>`
+
+<div class="flex items-center justify-between
+border-b last:border-0 p-3">
+
+<div>
+
+<div class="font-bold">
+${escapeHTML(fee.user)}
+</div>
+
+<div class="text-sm text-slate-500">
+${escapeHTML(fee.course)}
+</div>
+
+</div>
+
+<button
+onclick="toggleFee(${fee.id})"
+class="font-bold
+${fee.status==="Paid"
+?"text-green-600"
+:"text-orange-600"}">
+
+₹${fee.amount} • ${fee.status}
+
+</button>
+
+</div>
+
+`).join("")}
+
+</div>
+
+`);
+
+}
+
+
+/* =========================================================
+   BATCHES
+   ========================================================= */
+
+function batches(){
+
+return heading(
+"Batches",
+"Create and manage exam batches."
+)
+
++
+
+card(`
+
+<form onsubmit="createBatch(event)"
+class="space-y-3">
+
+<input
+name="name"
+required
+placeholder="Batch name"
+class="input w-full p-3 bg-slate-100 rounded-xl">
+
+<input
+name="teacher"
+required
+placeholder="Teacher name"
+class="input w-full p-3 bg-slate-100 rounded-xl">
+
+<button
+class="w-full bg-blue-600
+text-white p-3 rounded-xl font-bold">
+Create Batch
+</button>
+
+</form>
+
+`)
+
++
+
+`
+
+<div class="grid md:grid-cols-2 gap-4 mt-5">
+
+${state.batches.map(batch=>card(`
+
+<h2 class="font-bold text-lg">
+${escapeHTML(batch.name)}
+</h2>
+
+<p class="text-slate-500">
+Teacher: ${escapeHTML(batch.teacher)}
+</p>
+
+<p class="mt-2">
+${batch.students} Students
+</p>
+
+`)).join("")}
+
+</div>
+
+`;
+
+}
+
+
+/* =========================================================
+   AUTH MODAL
+   ========================================================= */
+
+function openAuth(mode="login"){
+
+const modal=document.createElement("div");
+
+modal.id="authModal";
+
+modal.className=
+"fixed inset-0 z-[200] bg-slate-950/70 p-4 grid place-items-center";
+
+modal.innerHTML=`
+
+<div class="bg-white rounded-2xl
+w-full max-w-md p-6">
+
+<div class="flex justify-between items-center">
+
+<h2 class="text-2xl font-black">
+CRACK EXAM
+</h2>
+
+<button onclick="document.getElementById('authModal').remove()">
+✕
+</button>
+
+</div>
+
+<div id="authBody" class="mt-6">
+
+${authForm(mode)}
+
+</div>
+
+</div>
+
+`;
+
+document.body.appendChild(modal);
+
+}
+
+function authForm(mode){
+
+if(mode==="forgot"){
+
+return `
+
+<h3 class="font-bold text-lg">
+Forgot Password
+</h3>
+
+<p class="text-sm text-slate-500 mt-1">
+Enter your email to reset your password.
+</p>
+
+<input
+id="authEmail"
+type="email"
+placeholder="Email"
+class="input w-full p-3 bg-slate-100 rounded-xl mt-4">
+
+<button
+onclick="forgotPassword()"
+class="w-full bg-blue-600 text-white p-3 rounded-xl mt-4 font-bold">
+Send Reset Link
+</button>
+
+<button
+onclick="switchAuth('login')"
+class="w-full mt-3 text-blue-600">
+Back to Login
+</button>
+
+`;
+
+}
+
+const register=mode==="register";
+
+return `
+
+<h3 class="font-bold text-lg">
+${register?"Create Account":"Welcome Back"}
+</h3>
+
+${
+register
+?
+
+`<input
+id="authName"
+placeholder="Full Name"
+class="input w-full p-3 bg-slate-100 rounded-xl mt-4">`
+
+:""
+}
+
+<input
+id="authEmail"
+type="email"
+placeholder="Email"
+class="input w-full p-3 bg-slate-100 rounded-xl mt-3">
+
+<input
+id="authPassword"
+type="password"
+placeholder="Password"
+class="input w-full p-3 bg-slate-100 rounded-xl mt-3">
+
+<button
+onclick="${register?"registerUser()":"loginUser()"}"
+class="w-full bg-blue-600 text-white p-3 rounded-xl mt-4 font-bold">
+
+${register?"Register":"Login"}
+
+</button>
+
+${
+!register
+?
+
+`<button
+onclick="switchAuth('forgot')"
+class="w-full text-sm text-blue-600 mt-4">
+Forgot Password?
+</button>`
+
+:""
+}
+
+<button
+onclick="switchAuth('${register?"login":"register"}')"
+class="w-full mt-4 text-sm text-slate-500">
+
+${register
+?"Already have an account? Login"
+:"Create a new account"}
+
+</button>
+
+<div class="mt-5 p-3 bg-slate-100 rounded-xl text-xs">
+
+Demo Admin:
+admin@crackexam.com / admin123
+
+<br><br>
+
+Demo Student:
+student@crackexam.com / student123
+
+</div>
+
+`;
+
+}
+
+function switchAuth(mode){
+
+const body=document.getElementById("authBody");
+
+if(body) body.innerHTML=authForm(mode);
+
+}
+
+
+/* =========================================================
+   AUTHENTICATION
+   ========================================================= */
+
+async function loginUser(){
+
+const email=document.getElementById("authEmail").value.trim();
+
+const password=document.getElementById("authPassword").value;
+
+if(!email||!password){
+
+toast("Enter email and password");
+
+return;
+
+}
+
+
+/* Supabase login */
+
+if(SUPABASE_ENABLED){
+
+const {data,error}=await supabaseClient.auth.signInWithPassword({
+email,
+password
+});
+
+if(error){
+
+toast(error.message);
+
+return;
+
+}
+
+const role=
+data.user.user_metadata?.role==="Admin"
+?"Admin"
+:"Student";
+
+state.user={
+id:data.user.id,
+name:data.user.user_metadata?.full_name||email.split("@")[0],
+email,
+role
+};
+
+save();
+
+document.getElementById("authModal")?.remove();
+
+render();
+
+toast("Login successful");
+
+return;
+
+}
+
+
+/* Demo/local login */
+
+let user=state.users.find(
+u=>u.email.toLowerCase()===email.toLowerCase()
+);
+
+if(
+email==="admin@crackexam.com" &&
+password==="admin123"
+){
+
+user=state.users[0];
+
+}
+
+if(
+email==="student@crackexam.com" &&
+password==="student123"
+){
+
+user=state.users[1];
+
+}
+
+if(!user){
+
+toast("Invalid login details");
+
+return;
+
+}
+
+state.user=user;
+
+save();
+
+document.getElementById("authModal")?.remove();
+
+render();
+
+toast("Login successful");
+
+}
+
+
+async function registerUser(){
+
+const name=document.getElementById("authName").value.trim();
+
+const email=document.getElementById("authEmail").value.trim();
+
+const password=document.getElementById("authPassword").value;
+
+if(!name||!email||!password){
+
+toast("Complete all fields");
+
+return;
+
+}
+
+if(SUPABASE_ENABLED){
+
+const {data,error}=await supabaseClient.auth.signUp({
+
+email,
+password,
+
+options:{
+data:{
+full_name:name,
+role:"Student"
+}
+}
+
+});
+
+if(error){
+
+toast(error.message);
+
+return;
+
+}
+
+toast("Registration successful. Check email if confirmation is enabled.");
+
+return;
+
+}
+
+
+/* Local demo registration */
+
+if(state.users.some(
+u=>u.email.toLowerCase()===email.toLowerCase()
+)){
+
+toast("Email already registered");
+
+return;
+
+}
+
+const user={
+id:Date.now(),
+name,
+email,
+role:"Student"
+};
+
+state.users.push(user);
+
+state.user=user;
+
+save();
+
+document.getElementById("authModal")?.remove();
+
+render();
+
+toast("Account created");
+
+}
+
+
+async function forgotPassword(){
+
+const email=document.getElementById("authEmail").value.trim();
+
+if(!email){
+
+toast("Enter your email");
+
+return;
+
+}
+
+if(SUPABASE_ENABLED){
+
+const {error}=await supabaseClient.auth.resetPasswordForEmail(
+email,
+{
+redirectTo:window.location.href
+}
+);
+
+if(error){
+
+toast(error.message);
+
+return;
+
+}
+
+toast("Password reset email sent");
+
+return;
+
+}
+
+toast("Demo mode: reset link simulated");
+
+}
+
+
+async function logout(){
+
+if(SUPABASE_ENABLED){
+
+await supabaseClient.auth.signOut();
+
+}
+
+state.user=null;
+
+save();
+
+render();
+
+toast("Logged out");
+
+}
+
+
+/* =========================================================
+   TEST ENGINE
+   ========================================================= */
+
+function startTest(id){
+
+const test=state.tests.find(t=>t.id===id);
+
+if(!test)return;
+
+let questions=test.questions;
+
+if(!questions.length){
+
+questions=[
+{
+q:"Demo Question 1",
+options:["Option A","Option B","Option C","Option D"],
+answer:0
+},
+{
+q:"Demo Question 2",
+options:["Option A","Option B","Option C","Option D"],
+answer:1
+}
+];
+
+}
+
+let current=0;
+
+let answers=[];
+
+const modal=document.createElement("div");
+
+modal.className=
+"fixed inset-0 z-[300] bg-slate-950/80 p-4 overflow-auto";
+
+modal.innerHTML=`
+
+<div class="max-w-2xl mx-auto
+bg-white rounded-2xl p-6 mt-5"
+id="testBox">
+
+</div>
+
+`;
+
+document.body.appendChild(modal);
+
+
+function draw(){
+
+const q=questions[current];
+
+document.getElementById("testBox").innerHTML=`
+
+<div class="flex justify-between">
+
+<div>
+
+<div class="text-sm text-blue-600 font-bold">
+${escapeHTML(test.category)}
+</div>
+
+<h2 class="font-bold text-xl">
+${escapeHTML(test.title)}
+</h2>
+
+</div>
+
+<button
+onclick="this.closest('.fixed').remove()">
+✕
+</button>
+
+</div>
+
+
+<div class="mt-6 text-sm text-slate-500">
+Question ${current+1} of ${questions.length}
+</div>
+
+<h3 class="text-xl font-bold mt-2">
+${escapeHTML(q.q)}
+</h3>
+
+
+<div class="grid gap-3 mt-6">
+
+${q.options.map((option,index)=>`
+
+<button
+onclick="answers[${current}]=${index};draw()"
+class="p-4 border rounded-xl text-left
+${answers[current]===index
+?"border-blue-600 bg-blue-50"
+:""}">
+
+${String.fromCharCode(65+index)}.
+${escapeHTML(option)}
+
+</button>
+
+`).join("")}
+
+</div>
+
+
+<div class="flex justify-between mt-7">
+
+<button
+onclick="current=Math.max(0,current-1);draw()"
+class="px-5 py-3 border rounded-xl">
+Previous
+</button>
+
+
+${
+current===questions.length-1
+
+?
+
+`<button
+onclick="finishTest()"
+class="px-5 py-3 bg-green-600
+text-white rounded-xl font-bold">
+Submit Test
+</button>`
+
+:
+
+`<button
+onclick="current++;draw()"
+class="px-5 py-3 bg-blue-600
+text-white rounded-xl font-bold">
+Next
+</button>`
+
+}
+
+</div>
+
+`;
+
+}
+
+
+function finishTest(){
+
+let correct=0;
+
+questions.forEach((q,index)=>{
+
+if(answers[index]===q.answer){
+
+correct++;
+
+}
+
+});
+
+const score=Math.round(
+(correct/questions.length)*100
+);
+
+state.result={
+title:test.title,
+correct,
+total:questions.length,
+score
+};
+
+save();
+
+modal.remove();
+
+navigate("results");
+
+toast("Test submitted successfully");
+
+}
+
+draw();
+
+}
+
+
+/* =========================================================
+   ADMIN ACTIONS
+   ========================================================= */
+
+function createTest(event){
+
+event.preventDefault();
+
+const form=new FormData(event.target);
+
+const title=form.get("title");
+
+const category=form.get("category");
+
+const raw=form.get("questions");
+
+const questions=raw
+.split("\n")
+.map(line=>{
+
+const p=line.split("|");
+
+if(p.length<6)return null;
+
+return {
+
+q:p[0],
+
+options:[
+p[1],
+p[2],
+p[3],
+p[4]
+],
+
+answer:Number(p[5])-1
+
+};
+
+})
+.filter(Boolean);
+
+state.tests.unshift({
+
+id:Date.now(),
+
+title,
+
+category,
+
+questions
+
+});
+
+save();
+
+render();
+
+toast("Test created and published");
+
+}
+
+
+function deleteTest(id){
+
+if(!confirm("Delete this test?"))return;
+
+state.tests=
+state.tests.filter(test=>test.id!==id);
+
+save();
+
+render();
+
+toast("Test deleted");
+
+}
+
+
+function toggleRole(id){
+
+const user=state.users.find(u=>u.id===id);
+
+if(!user)return;
+
+user.role=
+user.role==="Admin"
+?"Student"
+:"Admin";
+
+save();
+
+render();
+
+toast("Role updated");
+
+}
+
+
+function toggleFee(id){
+
+const fee=state.fees.find(f=>f.id===id);
+
+if(!fee)return;
+
+fee.status=
+fee.status==="Paid"
+?"Due"
+:"Paid";
+
+save();
+
+render();
+
+}
+
+
+function createBatch(event){
+
+event.preventDefault();
+
+const form=new FormData(event.target);
+
+state.batches.push({
+
+id:Date.now(),
+
+name:form.get("name"),
+
+teacher:form.get("teacher"),
+
+students:0
+
+});
+
+save();
+
+render();
+
+toast("Batch created");
+
+}
+
+
+/* =========================================================
+   SEARCH
+   ========================================================= */
+
+function performSearch(){
+
+const value=
+document.getElementById("searchBox")
+.value
+.toLowerCase()
+.trim();
+
+if(!value)return;
+
+if(value.includes("book"))
+navigate("books");
+
+else if(
+value.includes("practice")||
+value.includes("question")
+)
+navigate("practice");
+
+else if(value.includes("live"))
+navigate("live");
+
+else
+navigate("exams");
+
+}
+
+
+/* =========================================================
+   UI SETTINGS
+   ========================================================= */
+
+function toggleSidebar(){
+
+document
+.getElementById("sidebar")
+.classList.toggle("-translate-x-full");
+
+}
+
+function toggleDarkMode(){
+
+state.dark=!state.dark;
+
+document.documentElement.classList.toggle(
+"dark",
+state.dark
+);
+
+save();
+
+render();
+
+}
+
+
+/* =========================================================
+   RENDER
+   ========================================================= */
+
+function render(){
+
+const pages={
+
+dashboard,
+exams,
+series,
+practice,
+books,
+live,
+results,
+
+admin:adminDashboard,
+
+builder,
+users,
+fees,
+batches
+
+};
+
+const pageFunction=
+pages[state.page]||dashboard;
+
+document.getElementById("app").innerHTML=
+layout(pageFunction());
+
+document.documentElement.classList.toggle(
+"dark",
+state.dark
+);
+
+if(window.lucide){
+
+lucide.createIcons();
+
+}
+
+}
+
+
+/* =========================================================
+   SUPABASE SESSION RESTORE
+   ========================================================= */
+
+if(SUPABASE_ENABLED){
+
+supabaseClient.auth.getSession()
+.then(({data})=>{
+
+if(data.session){
+
+const user=data.session.user;
+
+state.user={
+
+id:user.id,
+
+name:
+user.user_metadata?.full_name||
+user.email.split("@")[0],
+
+email:user.email,
+
+role:
+user.user_metadata?.role==="Admin"
+?"Admin"
+:"Student"
+
+};
+
+save();
+
+render();
+
+}
+
+});
+
+}
+
+
+/* =========================================================
+   INITIAL LOAD
+   ========================================================= */
+
+render();
+
+</script>
+
+</body>
+</html>
