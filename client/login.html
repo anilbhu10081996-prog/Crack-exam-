@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - CrackExam</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #071a3d, #0d4c91);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .login-box {
+      width: 400px;
+      max-width: 100%;
+      background: white;
+      padding: 35px;
+      border-radius: 18px;
+      box-shadow: 0 15px 45px rgba(0,0,0,0.25);
+    }
+
+    .logo {
+      text-align: center;
+      font-size: 30px;
+      font-weight: 800;
+      color: #071a3d;
+      margin-bottom: 8px;
+    }
+
+    .logo span {
+      color: #168cff;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #687386;
+      margin-bottom: 28px;
+      font-size: 14px;
+    }
+
+    label {
+      display: block;
+      color: #172033;
+      font-weight: bold;
+      font-size: 14px;
+      margin-bottom: 7px;
+    }
+
+    input {
+      width: 100%;
+      padding: 13px 14px;
+      border: 1px solid #d8dee8;
+      border-radius: 9px;
+      margin-bottom: 18px;
+      font-size: 15px;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: #168cff;
+      box-shadow: 0 0 0 3px rgba(22,140,255,0.1);
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 9px;
+      background: #168cff;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .login-btn:hover {
+      background: #0879dc;
+    }
+
+    .login-btn:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    .message {
+      min-height: 20px;
+      margin-top: 15px;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .links {
+      text-align: center;
+      margin-top: 22px;
+      line-height: 2;
+      font-size: 14px;
+      color: #687386;
+    }
+
+    .links a {
+      color: #0879dc;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .links a:hover {
+      text-decoration: underline;
+    }
+
+    .back {
+      margin-top: 8px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="login-box">
+
+    <div class="logo">
+      Crack<span>Exam</span>
+    </div>
+
+    <p class="subtitle">
+      Login to your account
+    </p>
+
+    <form id="loginForm">
+
+      <label for="email">Email</label>
+
+      <input
+        type="email"
+        id="email"
+        placeholder="Enter your email"
+        autocomplete="email"
+        required
+      >
+
+      <label for="password">Password</label>
+
+      <input
+        type="password"
+        id="password"
+        placeholder="Enter your password"
+        autocomplete="current-password"
+        required
+      >
+
+      <button
+        type="submit"
+        class="login-btn"
+        id="loginBtn"
+      >
+        Login
+      </button>
+
+    </form>
+
+    <div
+      class="message"
+      id="message"
+    ></div>
+
+    <div class="links">
+
+      <div>
+        <a href="forgot-password.html">
+          Forgot Password?
+        </a>
+      </div>
+
+      <div>
+        Don't have an account?
+        <a href="register.html">
+          Create Account
+        </a>
+      </div>
+
+      <div class="back">
+        <a href="index.html">
+          ← Back to Home
+        </a>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script>
+
+    /*
+      Backend address.
+
+      Abhi local development ke liye hai.
+      Jab website online deploy hogi,
+      is URL ko live backend URL se change karenge.
+    */
+
+    const API_URL = "http://localhost:5000/api";
+
+    const loginForm =
+      document.getElementById("loginForm");
+
+    const loginBtn =
+      document.getElementById("loginBtn");
+
+    const message =
+      document.getElementById("message");
+
+
+    loginForm.addEventListener(
+      "submit",
+      async function(event) {
+
+        event.preventDefault();
+
+        const email =
+          document
+            .getElementById("email")
+            .value
+            .trim();
+
+        const password =
+          document
+            .getElementById("password")
+            .value;
+
+
+        message.style.color = "#687386";
+        message.textContent =
+          "Logging in...";
+
+        loginBtn.disabled = true;
+
+
+        try {
+
+          const response =
+            await fetch(
+              `${API_URL}/auth/login`,
+              {
+                method: "POST",
+
+                headers: {
+                  "Content-Type":
+                    "application/json"
+                },
+
+                body: JSON.stringify({
+                  email: email,
+                  password: password
+                })
+              }
+            );
+
+
+          const data =
+            await response.json();
+
+
+          if (!response.ok) {
+            throw new Error(
+              data.message ||
+              "Login failed"
+            );
+          }
+
+
+          /*
+            Login successful.
+            Token browser ke localStorage
+            mein save hoga.
+          */
+
+          localStorage.setItem(
+            "token",
+            data.token
+          );
+
+
+          localStorage.setItem(
+            "user",
+            JSON.stringify(data.user)
+          );
+
+
+          message.style.color =
+            "#19a765";
+
+          message.textContent =
+            "Login successful!";
+
+
+          /*
+            Admin ko sirf admin panel
+            par bheja jayega.
+
+            Student ko student dashboard
+            par bheja jayega.
+          */
+
+          setTimeout(function() {
+
+            if (
+              data.user &&
+              data.user.role === "admin"
+            ) {
+
+              window.location.href =
+                "../admin/index.html";
+
+            } else {
+
+              window.location.href =
+                "dashboard.html";
+
+            }
+
+          }, 700);
+
+
+        } catch (error) {
+
+          message.style.color =
+            "#e33d50";
+
+          message.textContent =
+            error.message ||
+            "Something went wrong.";
+
+          loginBtn.disabled = false;
+
+        }
+
+      }
+    );
+
+  </script>
+
+</body>
+</html>
